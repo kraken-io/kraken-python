@@ -33,7 +33,7 @@ class Client (object):
         api_endpoint = self.api_base_url + 'url'
 
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36',
             'content-type': 'application/json'
         }
 
@@ -86,3 +86,4 @@ class Client (object):
                 return r.json()
             except Exception as e:
                 raise StandardError('Could not parse JSON response from the Kraken.io API')
+
