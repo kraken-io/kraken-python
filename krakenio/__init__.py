@@ -1,9 +1,11 @@
 # coding=utf-8
 
+import cStringIO
 import json
 import requests
 
-class Client (object):
+
+class Client(object):
     def __init__(self, api_key=None, api_secret=None):
         if api_key is None:
             raise StandardError('Please provide Kraken.io API Key')
@@ -22,8 +24,7 @@ class Client (object):
             }
         }
 
-
-    def url (self, image_url=None, params=None):
+    def url(self, image_url=None, params=None):
         if image_url is None:
             raise StandardError('Please provide a valid image URL for optimization')
 
@@ -53,8 +54,7 @@ class Client (object):
             except Exception as e:
                 raise StandardError('Could not parse JSON response from the Kraken.io API')
 
-
-    def upload (self, file_path=None, params=None):
+    def upload(self, file_path=None, params=None):
         if file_path is None:
             raise StandardError('Please provide a valid file path to the image')
 
@@ -87,3 +87,34 @@ class Client (object):
             except Exception as e:
                 raise StandardError('Could not parse JSON response from the Kraken.io API')
 
+    def upload_stringio(self, img=None, params=None):
+        if img is None or not isinstance(img, cStringIO.OutputType):
+            raise StandardError('Please provide a valid StringIO file like object')
+        if params is None:
+            raise StandardError('Please provide image optimization parameters')
+
+        api_endpoint = self.api_base_url + 'upload'
+
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36'
+        }
+
+        params.update(self.auth)
+
+        files = {
+            'file': img.getvalue()
+        }
+
+        r = requests.post(url=api_endpoint, headers=headers, files=files, data={
+            'data': json.dumps(params)
+        })
+
+        if r.ok:
+            return r.json()
+        else:
+            details = None
+
+            try:
+                return r.json()
+            except Exception as e:
+                raise StandardError('Could not parse JSON response from the Kraken.io API')
