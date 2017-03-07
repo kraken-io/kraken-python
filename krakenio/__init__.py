@@ -1,6 +1,10 @@
 # coding=utf-8
 
-import cStringIO
+try:
+    from cStringIO import OutputType as cStringIO
+except ImportError:
+    from io import BytesIO as cStringIO
+
 import json
 import requests
 
@@ -88,7 +92,7 @@ class Client(object):
                 raise StandardError('Could not parse JSON response from the Kraken.io API')
 
     def upload_stringio(self, img=None, params=None):
-        if img is None or not isinstance(img, cStringIO.OutputType):
+        if img is None or not isinstance(img, cStringIO):
             raise StandardError('Please provide a valid StringIO file like object')
         if params is None:
             raise StandardError('Please provide image optimization parameters')
