@@ -10,7 +10,7 @@ except ImportError:
 
 setup (
     name = 'krakenio',
-    version = '0.0.2',
+    version = '0.1.0',
     description = 'Kraken.io API Client',
     long_description = 'With this official Python client you can plug into the power and speed of Kraken.io Image Optimizer.',
     url = 'https://github.com/kraken-io/kraken-python',
