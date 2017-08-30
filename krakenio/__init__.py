@@ -12,10 +12,10 @@ import requests
 class Client(object):
     def __init__(self, api_key=None, api_secret=None, timeout=None):
         if api_key is None:
-            raise StandardError('Please provide Kraken.io API Key')
+            raise Exception('Please provide Kraken.io API Key')
 
         if api_secret is None:
-            raise StandardError('Please provide Kraken.io API Secret')
+            raise Exception('Please provide Kraken.io API Secret')
 
         self.api_key = api_key
         self.api_secret = api_secret
@@ -32,10 +32,10 @@ class Client(object):
 
     def url(self, image_url=None, params=None):
         if image_url is None:
-            raise StandardError('Please provide a valid image URL for optimization')
+            raise Exception('Please provide a valid image URL for optimization')
 
         if params is None:
-            raise StandardError('Please provide image optimization parameters')
+            raise Exception('Please provide image optimization parameters')
 
         api_endpoint = self.api_base_url + 'url'
 
@@ -58,14 +58,14 @@ class Client(object):
             try:
                 return r.json()
             except Exception as e:
-                raise StandardError('Could not parse JSON response from the Kraken.io API')
+                raise Exception('Could not parse JSON response from the Kraken.io API')
 
     def upload(self, file_path=None, params=None):
         if file_path is None:
-            raise StandardError('Please provide a valid file path to the image')
+            raise Exception('Please provide a valid file path to the image')
 
         if params is None:
-            raise StandardError('Please provide image optimization parameters')
+            raise Exception('Please provide image optimization parameters')
 
         api_endpoint = self.api_base_url + 'upload'
 
@@ -91,13 +91,13 @@ class Client(object):
             try:
                 return r.json()
             except Exception as e:
-                raise StandardError('Could not parse JSON response from the Kraken.io API')
+                raise Exception('Could not parse JSON response from the Kraken.io API')
 
     def upload_stringio(self, img=None, params=None):
         if img is None or not isinstance(img, cStringIO):
-            raise StandardError('Please provide a valid StringIO file like object')
+            raise Exception('Please provide a valid StringIO file like object')
         if params is None:
-            raise StandardError('Please provide image optimization parameters')
+            raise Exception('Please provide image optimization parameters')
 
         api_endpoint = self.api_base_url + 'upload'
 
@@ -123,4 +123,4 @@ class Client(object):
             try:
                 return r.json()
             except Exception as e:
-                raise StandardError('Could not parse JSON response from the Kraken.io API')
+                raise Exception('Could not parse JSON response from the Kraken.io API')
