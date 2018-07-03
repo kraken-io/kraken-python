@@ -10,7 +10,7 @@ import requests
 
 
 class Client(object):
-    def __init__(self, api_key=None, api_secret=None):
+    def __init__(self, api_key=None, api_secret=None, timeout=None):
         if api_key is None:
             raise StandardError('Please provide Kraken.io API Key')
 
@@ -27,6 +27,8 @@ class Client(object):
                 'api_secret': api_secret
             }
         }
+
+        self.timeout = timeout
 
     def url(self, image_url=None, params=None):
         if image_url is None:
@@ -46,7 +48,7 @@ class Client(object):
 
         params.update(self.auth)
 
-        r = requests.post(url=api_endpoint, headers=headers, data=json.dumps(params))
+        r = requests.post(url=api_endpoint, headers=headers, data=json.dumps(params), timeout=self.timeout)
 
         if r.ok:
             return r.json()
@@ -77,7 +79,7 @@ class Client(object):
             'file': open(file_path, 'rb')
         }
 
-        r = requests.post(url=api_endpoint, headers=headers, files=files, data={
+        r = requests.post(url=api_endpoint, headers=headers, files=files, timeout=self.timeout, data={
             'data': json.dumps(params)
         })
 
@@ -109,7 +111,7 @@ class Client(object):
             'file': img.getvalue()
         }
 
-        r = requests.post(url=api_endpoint, headers=headers, files=files, data={
+        r = requests.post(url=api_endpoint, headers=headers, files=files, timeout=self.timeout, data={
             'data': json.dumps(params)
         })
 
