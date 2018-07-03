@@ -11,7 +11,7 @@ except ImportError:
 setup (
     name = 'ingresse-krakenio',
     version = '0.1.0',
-    description = 'Kraken.io API Client',
+    description = 'Froked Kraken.io API Client',
     long_description = 'With this official Python client you can plug into the power and speed of Kraken.io Image Optimizer.',
     url = 'https://github.com/ingresse/kraken-python',
     author = 'Nekkra UG',
