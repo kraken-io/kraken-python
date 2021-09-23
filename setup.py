@@ -1,14 +1,11 @@
 # coding=utf-8
 
-import os
-import re
-
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-setup (
+setup(
     name = 'krakenio',
     version = '0.2.0',
     description = 'Kraken.io API Client',

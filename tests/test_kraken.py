@@ -23,10 +23,12 @@ DEV_OPTIONS = {
     'dev': True
 }
 
+
 # Creates kraken instance
 @pytest.fixture(scope='class', autouse=True)
 def kraken_instance():
     return Client(KEY, SECRET)
+
 
 class TestKraken:
     """Kraken tests module

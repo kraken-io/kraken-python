@@ -18,6 +18,7 @@ UPLOAD_HEADERS = {
     'User-Agent': USER_AGENT
 }
 
+
 class Client(object):
     """Kraken.io client
 
@@ -25,7 +26,7 @@ class Client(object):
         object (object): default inheritance from object
     """
 
-    def __init__(self, api_key, api_secret, timeout=None):
+    def __init__(self, api_key, api_secret, timeout = None):
         """Create new Kraken.io client instance
 
         Args:
@@ -37,7 +38,7 @@ class Client(object):
         self.api = KrakenApiList()
         self.timeout = timeout
 
-    def post(self, url, params={}, fileData=None):
+    def post(self, url, params = {}, fileData = None):
         """Send POST request to API url
 
         Args:
@@ -52,28 +53,28 @@ class Client(object):
 
         if fileData is None:            # Sending data
             headers = POST_HEADERS
-            file=None
-            data= krakenData
+            file = None
+            data = krakenData
         else:                           # Sending file
             headers = UPLOAD_HEADERS
             file = {
                 'file': fileData
             }
-            data= {
+            data = {
                 'data': krakenData
             }
 
         result = requests.post(         # Sending request
-            url=url,
-            headers=headers,
-            data=data,
-            timeout=self.timeout,
-            files=file
+            url = url,
+            headers = headers,
+            data = data,
+            timeout = self.timeout,
+            files = file
         )
 
         return KrakenResponse(json.loads(result.text))  # Parsing result
 
-    def url(self, image_url, params={}):
+    def url(self, image_url, params = {}):
         """Krak image via URL
 
         Args:
@@ -86,7 +87,7 @@ class Client(object):
         params['url'] = image_url
         return self.post(self.api.url, params)
 
-    def upload(self, file_path, params={}):
+    def upload(self, file_path, params = {}):
         """Upload image to Kraken.io and Krak it
 
         Args:
@@ -99,7 +100,7 @@ class Client(object):
         data = open(file_path, 'rb')
         return self.post(self.api.upload, params, data)
 
-    def upload_stringio(self, img, params={}):
+    def upload_stringio(self, img, params = {}):
         """Upload image to Kraken.io and Krak it
 
         Args:
