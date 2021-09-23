@@ -1,126 +1,121 @@
 # coding=utf-8
 
-try:
-    from cStringIO import OutputType as cStringIO
-except ImportError:
-    from io import BytesIO as cStringIO
-
+# Standard libraries
 import json
 import requests
+from requests import api
 
+# Internal libraries
+from .lib import KrakenAuth, KrakenApiList, KrakenApiData, KrakenResponse
+
+# Constants and settings
+USER_AGENT = 'kraken-python/0.2.0'
+POST_HEADERS = {
+    'User-Agent': USER_AGENT,
+    'content-type': 'application/json'
+}
+UPLOAD_HEADERS = {
+    'User-Agent': USER_AGENT
+}
 
 class Client(object):
-    def __init__(self, api_key=None, api_secret=None, timeout=None):
-        if api_key is None:
-            raise Exception('Please provide Kraken.io API Key')
+    """Kraken.io client
 
-        if api_secret is None:
-            raise Exception('Please provide Kraken.io API Secret')
+    Args:
+        object (object): default inheritance from object
+    """
 
-        self.api_key = api_key
-        self.api_secret = api_secret
-        self.api_base_url = 'https://api.kraken.io/v1/'
+    def __init__(self, api_key, api_secret, timeout=None):
+        """Create new Kraken.io client instance
 
-        self.auth = {
-            'auth': {
-                'api_key': api_key,
-                'api_secret': api_secret
-            }
-        }
-
+        Args:
+            api_key (string): Kraken.io API key string
+            api_secret (string): Kraken.io API secret string
+            timeout (int, optional): Requests timeout. Defaults to None.
+        """
+        self.auth = KrakenAuth(api_key, api_secret)
+        self.api = KrakenApiList()
         self.timeout = timeout
 
-    def url(self, image_url=None, params=None):
-        if image_url is None:
-            raise Exception('Please provide a valid image URL for optimization')
+    def post(self, url, params={}, fileData=None):
+        """Send POST request to API url
 
-        if params is None:
-            raise Exception('Please provide image optimization parameters')
+        Args:
+            url (string): Kraken.io API url
+            params (dict, optional): Request options. Defaults to {}.
+            fileData (stringIo|BufferReader, optional): File data for file request. Defaults to None.
 
-        api_endpoint = self.api_base_url + 'url'
+        Returns:
+            KrakenResponse: request result
+        """
+        krakenData = KrakenApiData(self, params).toJson()
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36',
-            'content-type': 'application/json'
-        }
+        if fileData is None:            # Sending data
+            headers = POST_HEADERS
+            file=None
+            data= krakenData
+        else:                           # Sending file
+            headers = UPLOAD_HEADERS
+            file = {
+                'file': fileData
+            }
+            data= {
+                'data': krakenData
+            }
 
+        result = requests.post(         # Sending request
+            url=url,
+            headers=headers,
+            data=data,
+            timeout=self.timeout,
+            files=file
+        )
+
+        return KrakenResponse(json.loads(result.text))  # Parsing result
+
+    def url(self, image_url, params={}):
+        """Krak image via URL
+
+        Args:
+            image_url ([type]): [description]
+            params (dict, optional): [description]. Defaults to {}.
+
+        Returns:
+            KrakenResponse: kraked image details
+        """
         params['url'] = image_url
+        return self.post(self.api.url, params)
 
-        params.update(self.auth)
+    def upload(self, file_path, params={}):
+        """Upload image to Kraken.io and Krak it
 
-        r = requests.post(url=api_endpoint, headers=headers, data=json.dumps(params), timeout=self.timeout)
+        Args:
+            file_path (string): full path to file
+            params (dict, optional): Kraken API options. Defaults to {}.
 
-        if r.ok:
-            return r.json()
-        else:
-            details = None
+        Returns:
+            KrakenResponse: kraked image details
+        """
+        data = open(file_path, 'rb')
+        return self.post(self.api.upload, params, data)
 
-            try:
-                return r.json()
-            except Exception as e:
-                raise Exception('Could not parse JSON response from the Kraken.io API')
+    def upload_stringio(self, img, params={}):
+        """Upload image to Kraken.io and Krak it
 
-    def upload(self, file_path=None, params=None):
-        if file_path is None:
-            raise Exception('Please provide a valid file path to the image')
+        Args:
+            img (StringIO|BytesIO): file data
+            params (dict, optional): Kraken API options. Defaults to {}.
 
-        if params is None:
-            raise Exception('Please provide image optimization parameters')
+        Returns:
+            KrakenResponse: kraked image details
+        """
+        data = img.getvalue()
+        return self.post(self.api.upload, params, data)
 
-        api_endpoint = self.api_base_url + 'upload'
+    def userStatus(self):
+        """Get user status
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36'
-        }
-
-        params.update(self.auth)
-
-        files = {
-            'file': open(file_path, 'rb')
-        }
-
-        r = requests.post(url=api_endpoint, headers=headers, files=files, timeout=self.timeout, data={
-            'data': json.dumps(params)
-        })
-
-        if r.ok:
-            return r.json()
-        else:
-            details = None
-
-            try:
-                return r.json()
-            except Exception as e:
-                raise Exception('Could not parse JSON response from the Kraken.io API')
-
-    def upload_stringio(self, img=None, params=None):
-        if img is None or not isinstance(img, cStringIO):
-            raise Exception('Please provide a valid StringIO file like object')
-        if params is None:
-            raise Exception('Please provide image optimization parameters')
-
-        api_endpoint = self.api_base_url + 'upload'
-
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36'
-        }
-
-        params.update(self.auth)
-
-        files = {
-            'file': img.getvalue()
-        }
-
-        r = requests.post(url=api_endpoint, headers=headers, files=files, timeout=self.timeout, data={
-            'data': json.dumps(params)
-        })
-
-        if r.ok:
-            return r.json()
-        else:
-            details = None
-
-            try:
-                return r.json()
-            except Exception as e:
-                raise Exception('Could not parse JSON response from the Kraken.io API')
+        Returns:
+            KrakenResponse: user status details
+        """
+        return self.post(self.api.userStatus)
