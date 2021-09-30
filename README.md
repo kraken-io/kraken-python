@@ -1,24 +1,26 @@
-Official Kraken.io library for Python
-===========
+# Official Kraken.io library for Python
 
 With this Python Client you can plug into the power and speed of [Kraken.io](http://kraken.io/) Image Optimizer.
 
-* [Installation](#installation)
-* [Getting Started](#getting-started)
-* [Downloading Images](#downloading-images)
-* [How To Use](#how-to-use)
-* [Wait and Callback URL](#wait-and-callback-url)
-  * [Wait Option](#wait-option)
-  * [Callback URL](#callback-url)
-* [Authentication](#authentication)
-* [Usage - Image URL](#usage---image-url)
-* [Usage - Image Upload](#usage---image-upload)
-* [Lossy Optimization](#lossy-optimization)
-* [Image Resizing](#image-resizing)
-* [WebP Compression](#webp-compression)
-* [Amazon S3 and Rackspace Cloud Files Integration](#amazon-s3-and-rackspace-cloud-files)
-  * [Amazon S3](#amazon-s3)
-  * [Rackspace Cloud Files](#rackspace-cloud-files)
+- [Official Kraken.io library for Python](#official-krakenio-library-for-python)
+  - [Installation](#installation)
+  - [Getting Started](#getting-started)
+  - [Downloading Images](#downloading-images)
+  - [How to use](#how-to-use)
+  - [Wait and Callback URL](#wait-and-callback-url)
+    - [Wait option](#wait-option)
+    - [Callback URL](#callback-url)
+  - [Authentication](#authentication)
+  - [Usage - Image URL](#usage---image-url)
+  - [Usage - Image Upload](#usage---image-upload)
+  - [Usage - User status](#usage---user-status)
+  - [Lossy Optimization](#lossy-optimization)
+  - [Image Resizing](#image-resizing)
+  - [WebP Compression](#webp-compression)
+  - [External Storage](#external-storage)
+    - [Amazon S3](#amazon-s3)
+    - [Rackspace Cloud Files](#rackspace-cloud-files)
+  - [LICENSE - MIT](#license---mit)
 
 ## Installation
 
@@ -48,7 +50,7 @@ With the `wait` option turned on for every request to the API, the connection wi
 
 **Request:**
 
-````js
+```json
 {
     "auth": {
         "api_key": "your-api-key",
@@ -57,11 +59,11 @@ With the `wait` option turned on for every request to the API, the connection wi
     "url": "http://awesome-website.com/images/header.jpg",
     "wait": true
 }
-````
+```
 
 **Response**
 
-````js
+```json
 {
     "success": true,
     "file_name": "header.jpg",
@@ -70,7 +72,7 @@ With the `wait` option turned on for every request to the API, the connection wi
     "saved_bytes": 159162,
     "kraked_url": "http://dl.kraken.io/d1aacd2a2280c2ffc7b4906a09f78f46/header.jpg"
 }
-````
+```
 
 ### Callback URL
 
@@ -80,7 +82,7 @@ We recommend [hookbin](https://hookbin.com) as an easy way to capture optimizati
 
 **Request:**
 
-````js
+```json
 {
     "auth": {
         "api_key": "your-api-key",
@@ -89,21 +91,21 @@ We recommend [hookbin](https://hookbin.com) as an easy way to capture optimizati
     "url": "http://image-url.com/file.jpg",
     "callback_url": "http://awesome-website.com/kraken_results"
 }
-````
+```
 
 **Response:**
 
-````js
+```json
 {
     "id": "18fede37617a787649c3f60b9f1f280d"
 }
-````
+```
 
 **Results posted to the Callback URL:**
 
-````js
+```json
 {
-    "id": "18fede37617a787649c3f60b9f1f280d"
+    "id": "18fede37617a787649c3f60b9f1f280d",
     "success": true,
     "file_name": "file.jpg",
     "original_size": 324520,
@@ -111,23 +113,23 @@ We recommend [hookbin](https://hookbin.com) as an easy way to capture optimizati
     "saved_bytes": 159162,
     "kraked_url": "http://dl.kraken.io/18fede37617a787649c3f60b9f1f280d/file.jpg"
 }
-````
+```
 
 ## Authentication
 
 The first step is to authenticate to Kraken API by providing your unique API Key and API Secret while creating a new Kraken instance:
 
-````python
+```python
 from krakenio import Client
 
 api = Client('your-api-key', 'your-api-secret')
-````
+```
 
 ## Usage - Image URL
 
 To optimize an image by providing image URL use the `kraken.url()` method. You will need to provide two mandatory parameters - `url` to the image and `wait` or `callback_url`:
 
-````python
+```python
 from krakenio import Client
 
 api = Client('your-api-key', 'your-api-secret')
@@ -138,24 +140,24 @@ data = {
 
 result = api.url('your-image-url', data);
 
-if result.get('success'):
-    print result.get('kraked_url')
+if result.success:
+    print(result.kraked_url)
 else:
-    print result.get('message')
-````
+    print(result.message)
+```
 
 Depending on a choosen response option (Wait or Callback URL) in the `data` object you will find either the optimization ID or optimization results containing a `success` property, file name, original file size, kraked file size, amount of savings and optimized image URL:
 
-````js
+```json
 {
-    success: true,
-    file_name: 'file.jpg',
-    original_size: 30664,
-    kraked_size: 577,
-    saved_bytes: 30087,
-    kraked_url: 'http://dl.kraken.io/d1/aa/cd/2a2280c2ffc7b4906a09f78f46/file.jpg'
+    "success": true,
+    "file_name": "file.jpg",
+    "original_size": 30664,
+    "kraked_size": 577,
+    "saved_bytes": 30087,
+    "kraked_url": "http://dl.kraken.io/d1/aa/cd/2a2280c2ffc7b4906a09f78f46/file.jpg"
 }
-````
+```
 
 ## Usage - Image Upload
 
@@ -163,7 +165,7 @@ If you want to upload your images directly to Kraken API use the `kraken.upload(
 
 In the `data` object you will find the same optimization properties as with `url` option above.
 
-````python
+```python
 from krakenio import Client
 
 api = Client('your-api-key', 'your-api-secret')
@@ -174,11 +176,43 @@ data = {
 
 result = api.upload('/path/to/file.jpg', data);
 
-if result.get('success'):
-    print result.get('kraked_url')
+if result.success:
+    print(result.kraked_url)
 else:
-    print result.get('message')
-````
+    print(result.message)
+```
+
+## Usage - User status
+
+If you want to check your quotas or your account status, you can use [userStatus](https://kraken.io/docs/user-status) which will return something like:
+
+```json
+{
+    "success": true,
+    "active": true,
+    "plan_name": "Enterprise",
+    "quota_total": 64424509440,
+    "quota_used": 313271610,
+    "quota_remaining": 64111237830
+}
+```
+
+```python
+from krakenio import Client
+
+api = Client('your-api-key', 'your-api-secret')
+
+status = api.userStatus()
+
+if status.success:
+    print('Active: {}'.format(status.active))
+    print('Plan name: {}'.format(status.plan_name))
+    print('Quota total: {}'.format(status.quota_total))
+    print('Quota used: {}'.format(status.quota_used))
+    print('Quota remaining: {}'.format(status.quota_remaining))
+else:
+    print(status.error)
+```
 
 ## Lossy Optimization
 
@@ -186,18 +220,18 @@ When you decide to sacrifice just a small amount of image quality (usually unnot
 
 To use lossy optimizations simply set `lossy: true` in your request:
 
-````python
+```python
 data = {
     'wait': True,
     'lossy': True
 }
-````
+```
 
 ## Image Resizing
 
 Image resizing option is great for creating thumbnails or preview images in your applications. Kraken will first resize the given image and then optimize it with its vast array of optimization algorithms. The `resize` option needs a few parameters to be passed like desired `width` and/or `height` and a mandatory `strategy` property. For example:
 
-````python
+```python
 from krakenio import Client
 
 api = Client('your-api-key', 'your-api-secret')
@@ -214,19 +248,19 @@ data = {
 
 result = api.upload('/path/to/file.jpg', data);
 
-if result.get('success'):
-    print result.get('kraked_url')
+if result.success:
+    print(result.kraked_url)
 else:
-    print result.get('message')
-````
+    print(result.message)
+```
 
 The `strategy` property can have one of the following values:
 
-- `exact` - Resize by exact width/height. No aspect ratio will be maintained.
-- `portrait` - Exact width will be set, height will be adjusted according to aspect ratio.
-- `landscape` - Exact height will be set, width will be adjusted according to aspect ratio.
-- `auto` - The best strategy (portrait or landscape) will be selected for a given image according to aspect ratio.
-- `crop` - This option will crop your image to the exact size you specify with no distortion.
+-   `exact` - Resize by exact width/height. No aspect ratio will be maintained.
+-   `portrait` - Exact width will be set, height will be adjusted according to aspect ratio.
+-   `landscape` - Exact height will be set, width will be adjusted according to aspect ratio.
+-   `auto` - The best strategy (portrait or landscape) will be selected for a given image according to aspect ratio.
+-   `crop` - This option will crop your image to the exact size you specify with no distortion.
 
 ## WebP Compression
 
@@ -234,13 +268,13 @@ WebP is a new image format introduced by Google in 2010 which supports both loss
 
 To recompress your PNG or JPEG files into WebP format simply set `"webp": true` flag in your request JSON. You can also optionally set `"lossy": true` flag to leverage WebP's lossy compression:
 
-````python
+```python
 data = {
     'wait': True,
     'lossy': True,
     'webp': True
 }
-````
+```
 
 ## External Storage
 
@@ -249,18 +283,20 @@ Kraken API allows you to store optimized images directly in your S3, Cloud Files
 ### Amazon S3
 
 **Mandatory Parameters:**
-- `key` - Your unique Amazon "Access Key ID".
-- `secret` - Your unique Amazon "Secret Access Key".
-- `bucket` - Name of a destination container on your Amazon S3 account.
-- `region` - Name of the region your S3 bucket is located in.
+
+-   `key` - Your unique Amazon "Access Key ID".
+-   `secret` - Your unique Amazon "Secret Access Key".
+-   `bucket` - Name of a destination container on your Amazon S3 account.
+-   `region` - Name of the region your S3 bucket is located in.
 
 **Optional Parameters:**
-- `path` - Destination path in your S3 bucket (e.g. `"images/layout/header.jpg"`). Defaults to root `"/"`.
-- `acl` - Permissions of a destination object. This can be `"public_read"` or `"private"`. Defaults to `"public_read"`.
+
+-   `path` - Destination path in your S3 bucket (e.g. `"images/layout/header.jpg"`). Defaults to root `"/"`.
+-   `acl` - Permissions of a destination object. This can be `"public_read"` or `"private"`. Defaults to `"public_read"`.
 
 The above parameters must be passed in a `s3_store` object:
 
-````python
+```python
 from krakenio import Client
 
 api = Client('your-api-key', 'your-api-secret')
@@ -278,33 +314,35 @@ data = {
 
 result = api.upload('/path/to/file.jpg', data);
 
-if result.get('success'):
-    print result.get('kraked_url')
+if result.success:
+    print(result.kraked_url)
 else:
-    print result.get('message')
-````
+    print(result.message)
+```
 
 The `result` object will contain `kraked_url` key pointing directly to the optimized file in your Amazon S3 account:
 
-````js
+```json
 {
-    kraked_url: "http://s3.amazonaws.com/YOUR_CONTAINER/path/to/file.jpg"
+    "kraked_url": "http://s3.amazonaws.com/YOUR_CONTAINER/path/to/file.jpg"
 }
-````
+```
 
 ### Rackspace Cloud Files
 
 **Mandatory Parameters:**
-- `user` - Your Rackspace username.
-- `key` - Your unique Cloud Files API Key.
-- `container` - Name of a destination container on your Cloud Files account.
+
+-   `user` - Your Rackspace username.
+-   `key` - Your unique Cloud Files API Key.
+-   `container` - Name of a destination container on your Cloud Files account.
 
 **Optional Parameters:**
-- `path` - Destination path in your container (e.g. `"images/layout/header.jpg"`). Defaults to root `"/"`.
+
+-   `path` - Destination path in your container (e.g. `"images/layout/header.jpg"`). Defaults to root `"/"`.
 
 The above parameters must be passed in a `cf_store` object:
 
-````python
+```python
 from krakenio import Client
 
 api = Client('your-api-key', 'your-api-secret')
@@ -321,23 +359,27 @@ data = {
 
 result = api.upload('/path/to/file.jpg', data);
 
-if result.get('success'):
-    print result.get('kraked_url')
+if result.success:
+    print(result.kraked_url)
 else:
-    print result.get('message')
-````
+    print(result.message)
+```
 
 If your container is CDN-enabled, the optimization results will contain `kraked_url` which points directly to the optimized file location in your Cloud Files account, for example:
 
-````js
-kraked_url: "http://e9ffc04970a269a54eeb-cc00fdd2d4f11dffd931005c9e8de53a.r2.cf1.rackcdn.com/path/to/file.jpg"
-````
+```json
+{
+    "kraked_url": "http://e9ffc04970a269a54eeb-cc00fdd2d4f11dffd931005c9e8de53a.r2.cf1.rackcdn.com/path/to/file.jpg"
+}
+```
 
 If your container is not CDN-enabled `kraked_url` will point to the optimized image URL in the Kraken API:
 
-````js
-kraked_url: "http://dl.kraken.io/ec/df/a5/c55d5668b1b5fe9e420554c4ee/file.jpg"
-````
+```json
+{
+    "kraked_url": "http://dl.kraken.io/ec/df/a5/c55d5668b1b5fe9e420554c4ee/file.jpg"
+}
+```
 
 ## LICENSE - MIT
 
