@@ -6,10 +6,14 @@ import requests
 from requests import api
 
 # Internal libraries
-from .lib import KrakenAuth, KrakenApiList, KrakenApiData, KrakenResponse
+from .lib.KrakenAuth import KrakenAuth
+from .lib.KrakenApiList import KrakenApiList
+from .lib.KrakenApiData import KrakenApiData
+from .lib.KrakenResponse import KrakenResponse
+from .meta import KrakenioMeta
 
 # Constants and settings
-USER_AGENT = 'kraken-python/0.2.0'
+USER_AGENT = 'kraken-python/' + KrakenioMeta.version
 POST_HEADERS = {
     'User-Agent': USER_AGENT,
     'content-type': 'application/json'
@@ -49,7 +53,7 @@ class Client(object):
         Returns:
             KrakenResponse: request result
         """
-        krakenData = KrakenApiData(self, params).toJson()
+        krakenData = KrakenApiData(self.auth, params).toJson()
 
         if fileData is None:            # Sending data
             headers = POST_HEADERS
