@@ -123,7 +123,7 @@ The first step is to authenticate to Kraken API by providing your unique API Key
 ```python
 from krakenio import Client
 
-api = Client('your-api-key', 'your-api-secret')
+kraken = Client('your-api-key', 'your-api-secret')
 ```
 
 ## Usage - Image URL
@@ -133,13 +133,13 @@ To optimize an image by providing image URL use the `kraken.url()` method. You w
 ```python
 from krakenio import Client
 
-api = Client('your-api-key', 'your-api-secret')
+kraken = Client('your-api-key', 'your-api-secret')
 
 data = {
     'wait': True
 }
 
-result = api.url('your-image-url', data);
+result = kraken.url('your-image-url', data);
 
 if result.success:
     print(result.kraked_url)
@@ -169,13 +169,13 @@ In the `data` object you will find the same optimization properties as with `url
 ```python
 from krakenio import Client
 
-api = Client('your-api-key', 'your-api-secret')
+kraken = Client('your-api-key', 'your-api-secret')
 
 data = {
     'wait': True
 }
 
-result = api.upload('/path/to/file.jpg', data);
+result = kraken.upload('/path/to/file.jpg', data);
 
 if result.success:
     print(result.kraked_url)
@@ -201,9 +201,9 @@ If you want to check your quotas or your account status, you can use [userStatus
 ```python
 from krakenio import Client
 
-api = Client('your-api-key', 'your-api-secret')
+kraken = Client('your-api-key', 'your-api-secret')
 
-status = api.userStatus()
+status = kraken.userStatus()
 
 if status.success:
     print('Active: {}'.format(status.active))
@@ -235,7 +235,7 @@ Image resizing option is great for creating thumbnails or preview images in your
 ```python
 from krakenio import Client
 
-api = Client('your-api-key', 'your-api-secret')
+kraken = Client('your-api-key', 'your-api-secret')
 
 data = {
     'wait': True,
@@ -247,7 +247,7 @@ data = {
     }
 }
 
-result = api.upload('/path/to/file.jpg', data);
+result = kraken.upload('/path/to/file.jpg', data);
 
 if result.success:
     print(result.kraked_url)
@@ -300,7 +300,7 @@ The above parameters must be passed in a `s3_store` object:
 ```python
 from krakenio import Client
 
-api = Client('your-api-key', 'your-api-secret')
+kraken = Client('your-api-key', 'your-api-secret')
 
 data = {
     'wait': True,
@@ -313,7 +313,7 @@ data = {
     }
 }
 
-result = api.upload('/path/to/file.jpg', data);
+result = kraken.upload('/path/to/file.jpg', data);
 
 if result.success:
     print(result.kraked_url)
@@ -346,7 +346,7 @@ The above parameters must be passed in a `cf_store` object:
 ```python
 from krakenio import Client
 
-api = Client('your-api-key', 'your-api-secret')
+kraken = Client('your-api-key', 'your-api-secret')
 
 data = {
     'wait': True,
@@ -358,7 +358,7 @@ data = {
     }
 }
 
-result = api.upload('/path/to/file.jpg', data);
+result = kraken.upload('/path/to/file.jpg', data);
 
 if result.success:
     print(result.kraked_url)
@@ -386,29 +386,29 @@ If your container is not CDN-enabled `kraked_url` will point to the optimized im
 
 Install package to system in development mode (Python 2/Python 3):
 
-    pip install -e .
+    pip2 install -e .
     pip3 install -e .
 
 To check installation:
 
-    pip list | grep krakenio
+    pip2 list | grep krakenio
     pip3 list | grep krakenio
 
     > krakenio           0.2.0     /dev/kraken-python
 
 Uninstall:
 
-    pip uninstall krakenio
+    pip2 uninstall krakenio
     pip3 uninstall krakenio
 
 Install dev dependencies:
 
-    pip install -r dev_requirements.txt
-    pip3 install -r dev_requirements.txt
+    pip2 install -r dev_requirements_2.txt
+    pip3 install -r dev_requirements_3.txt
 
 Run tests:
 
-    python -m pytest
+    python2 -m pytest
     python3 -m pytest
 
 Check style:

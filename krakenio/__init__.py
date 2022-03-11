@@ -3,14 +3,14 @@
 # Standard libraries
 import json
 import requests
-from requests import api
 
 # Internal libraries
-from .lib.KrakenAuth import KrakenAuth
-from .lib.KrakenApiList import KrakenApiList
-from .lib.KrakenApiData import KrakenApiData
-from .lib.KrakenResponse import KrakenResponse
 from .meta import KrakenioMeta
+from .lib import KrakenAuth, KrakenApiList, KrakenApiData, KrakenResponse
+# from .lib import KrakenAuth
+# from .lib import KrakenApiList
+# from .lib import KrakenApiData
+# from .lib import KrakenResponse
 
 # Constants and settings
 USER_AGENT = 'kraken-python/' + KrakenioMeta.version

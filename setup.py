@@ -19,5 +19,6 @@ setup(
     keywords = KrakenioMeta.keywords,
     packages = KrakenioMeta.packages,
     install_requires = KrakenioMeta.install_requires,
-    classifiers = KrakenioMeta.classifiers
+    classifiers = KrakenioMeta.classifiers,
+    include_package_data = True
 )

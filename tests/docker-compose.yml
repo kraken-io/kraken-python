@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  python:
+    build:
+      context: ..
+      dockerfile: ./tests/compose/python/Dockerfile
+    image: localhost/kraken/python
+    container_name: kraken-python3
+
+  test:
+    image: localhost/kraken/python
+    container_name: kraken-test
+    depends_on:
+      - python
+    working_dir: /kraken
+    volumes:
+      - ../:/kraken
+    environment:
+      - KRAKEN_API_KEY=${KRAKEN_API_KEY}
+      - KRAKEN_API_SECRET=${KRAKEN_API_SECRET}
+    command: bash -c "source ~/.bashrc && /kraken/tests/scripts/run-all.sh"
