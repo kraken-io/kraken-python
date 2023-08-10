@@ -54,8 +54,8 @@ With the `wait` option turned on for every request to the API, the connection wi
 ```json
 {
     "auth": {
-        "api_key": "your-api-key",
-        "api_secret": "your-api-secret"
+        "api_key": "your_api_key",
+        "api_secret": "your_api_secret"
     },
     "url": "http://awesome-website.com/images/header.jpg",
     "wait": true
@@ -123,7 +123,7 @@ The first step is to authenticate to Kraken API by providing your unique API Key
 ```python
 from krakenio import Client
 
-kraken = Client('your-api-key', 'your-api-secret')
+kraken = Client('your_api_key', 'your_api_secret')
 ```
 
 ## Usage - Image URL
@@ -133,13 +133,13 @@ To optimize an image by providing image URL use the `kraken.url()` method. You w
 ```python
 from krakenio import Client
 
-kraken = Client('your-api-key', 'your-api-secret')
+kraken = Client('your_api_key', 'your_api_secret')
 
 data = {
     'wait': True
 }
 
-result = kraken.url('your-image-url', data);
+result = kraken.url('your_image_url', data)
 
 if result.success:
     print(result.kraked_url)
@@ -169,13 +169,13 @@ In the `data` object you will find the same optimization properties as with `url
 ```python
 from krakenio import Client
 
-kraken = Client('your-api-key', 'your-api-secret')
+kraken = Client('your_api_key', 'your_api_secret')
 
 data = {
     'wait': True
 }
 
-result = kraken.upload('/path/to/file.jpg', data);
+result = kraken.upload('/path/to/file.jpg', data)
 
 if result.success:
     print(result.kraked_url)
@@ -201,7 +201,7 @@ If you want to check your quotas or your account status, you can use [userStatus
 ```python
 from krakenio import Client
 
-kraken = Client('your-api-key', 'your-api-secret')
+kraken = Client('your_api_key', 'your_api_secret')
 
 status = kraken.userStatus()
 
@@ -235,7 +235,7 @@ Image resizing option is great for creating thumbnails or preview images in your
 ```python
 from krakenio import Client
 
-kraken = Client('your-api-key', 'your-api-secret')
+kraken = Client('your_api_key', 'your_api_secret')
 
 data = {
     'wait': True,
@@ -306,14 +306,14 @@ data = {
     'wait': True,
     'lossy': True,
     's3_store': {
-        'key': 'your-amazon-access-key',
-        'secret': 'your-amazon-secret-key',
-        'bucket': 'destination-bucket',
-        'region': 'us-east-1'
+        'key': 'your_amazon_access_key',
+        'secret': 'your_amazon_secret_key',
+        'bucket': 'destination_bucket',
+        'region': 'bucket_location'
     }
 }
 
-result = kraken.upload('/path/to/file.jpg', data);
+result = kraken.upload('/path/to/file.jpg', data)
 
 if result.success:
     print(result.kraked_url)
@@ -346,19 +346,19 @@ The above parameters must be passed in a `cf_store` object:
 ```python
 from krakenio import Client
 
-kraken = Client('your-api-key', 'your-api-secret')
+kraken = Client('your_api_key', 'your_api_secret')
 
 data = {
     'wait': True,
     'lossy': True,
     'cf_store': {
-        'user': 'your-rackspace-username',
-        'key': 'your-rackspace-api-key',
-        'container': 'destination-container'
+        'user': 'your_rackspace_username',
+        'key': 'your_rackspace_api_key',
+        'container': 'destination_container'
     }
 }
 
-result = kraken.upload('/path/to/file.jpg', data);
+result = kraken.upload('/path/to/file.jpg', data)
 
 if result.success:
     print(result.kraked_url)
