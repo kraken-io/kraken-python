@@ -86,8 +86,8 @@ We recommend [hookbin](https://hookbin.com) as an easy way to capture optimizati
 ```json
 {
     "auth": {
-        "api_key": "your-api-key",
-        "api_secret": "your-api-secret"
+        "api_key": "your_api_key",
+        "api_secret": "your_api_secret"
     },
     "url": "http://image-url.com/file.jpg",
     "callback_url": "http://awesome-website.com/kraken_results"
