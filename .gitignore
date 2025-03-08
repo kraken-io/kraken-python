@@ -87,3 +87,10 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+.env
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
