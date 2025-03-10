@@ -23,7 +23,7 @@ class Client:
         self.api_v1_url = self.api_base_url + "v1/"
         self.auth = {"auth": {"api_key": self.api_key, "api_secret": self.api_secret}}
         self.headers = {
-            "User-Agent": "Kraken-Python-Client/2.0.0 (Python/3.x; +https://github.com/krakenio/kraken-python)",
+            "User-Agent": "Kraken-Python-Client/0.2.0 (Python/3.x; +https://github.com/krakenio/kraken-python)",
             "Content-Type": "application/json",
         }
 
