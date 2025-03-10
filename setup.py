@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 NAME = "krakenio"
-VERSION = "2.0.0"
+VERSION = "0.2.0"
 DESCRIPTION = "Kraken.io API Client"
 LONG_DESCRIPTION = (
     "Official Python client for integrating with the Kraken.io Image Optimizer, "
