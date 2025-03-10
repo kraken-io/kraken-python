@@ -19,7 +19,8 @@ class Client:
 
         self.api_key = api_key
         self.api_secret = api_secret
-        self.api_base_url = "https://api.kraken.io/v1/"
+        self.api_base_url = "https://api.kraken.io/"
+        self.api_v1_url = self.api_base_url + "v1/"
         self.auth = {"auth": {"api_key": self.api_key, "api_secret": self.api_secret}}
         self.headers = {
             "User-Agent": "Kraken-Python-Client/2.0.0 (Python/3.x; +https://github.com/krakenio/kraken-python)",
@@ -33,7 +34,7 @@ class Client:
         if not params:
             raise ValueError("Please provide image optimization parameters")
 
-        api_endpoint = self.api_base_url + "url"
+        api_endpoint = self.api_v1_url + "url"
         request_data = params.copy()
         request_data["url"] = image_url
         request_data.update(self.auth)
@@ -48,7 +49,7 @@ class Client:
         if not params:
             raise ValueError("Please provide image optimization parameters")
 
-        api_endpoint = self.api_base_url + "upload"
+        api_endpoint = self.api_v1_url + "upload"
         request_data = params.copy()
         request_data.update(self.auth)
 
@@ -64,7 +65,7 @@ class Client:
         if not params:
             raise ValueError("Please provide image optimization parameters")
 
-        api_endpoint = self.api_base_url + "upload"
+        api_endpoint = self.api_v1_url + "upload"
         request_data = params.copy()
         request_data.update(self.auth)
 

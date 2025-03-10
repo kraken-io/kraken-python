@@ -17,6 +17,7 @@ As of version **0.2.0**, this package **only supports Python 3.8 and later**. If
 * [Authentication](#authentication)
 * [Usage - Image URL](#usage---image-url)
 * [Usage - Image Upload](#usage---image-upload)
+* [Usage - User status](#usage---user-status)
 * [Lossy Optimization](#lossy-optimization)
 * [Image Resizing](#image-resizing)
 * [WebP Compression](#webp-compression)
@@ -185,6 +186,37 @@ if result.get('success'):
 else:
     print result.get('message')
 ````
+
+## Usage - User status
+
+If you want to check your quotas or your account status, you can use `user_status()` which will return a response similar to the following:
+
+
+```json
+{
+    "success": true,
+    "active": true,
+    "plan_name": "Enterprise",
+    "quota_total": 64424509440,
+    "quota_used": 313271610,
+    "quota_remaining": 64111237830
+}
+```
+
+```python
+from krakenio import Client
+
+# Initialize Kraken client
+api = Client(api_key="your-api-key", api_secret="your-api-secret")
+
+# Get user status
+result = api.user_status()
+
+if result.get("success"):
+    print("Success:", result)
+else:
+    print("Error:", result.get("message"))
+```
 
 ## Lossy Optimization
 
