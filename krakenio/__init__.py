@@ -1,124 +1,113 @@
 # coding=utf-8
 
-try:
-    from cStringIO import OutputType as cStringIO
-except ImportError:
-    from io import BytesIO as cStringIO
+__version__ = "2.0.0"
+
 
 import json
+from io import BytesIO
 import requests
+import sys
 
+class Client:
+    """Client for interacting with the Kraken.io API."""
 
-class Client(object):
-    def __init__(self, api_key=None, api_secret=None):
-        if api_key is None:
-            raise StandardError('Please provide Kraken.io API Key')
-
-        if api_secret is None:
-            raise StandardError('Please provide Kraken.io API Secret')
+    def __init__(self, api_key, api_secret):
+        if not api_key:
+            raise ValueError("Please provide a Kraken.io API Key")
+        if not api_secret:
+            raise ValueError("Please provide a Kraken.io API Secret")
 
         self.api_key = api_key
         self.api_secret = api_secret
-        self.api_base_url = 'https://api.kraken.io/v1/'
-
-        self.auth = {
-            'auth': {
-                'api_key': api_key,
-                'api_secret': api_secret
-            }
+        self.api_base_url = "https://api.kraken.io/"
+        self.api_v1_url = self.api_base_url + "v1/"
+        self.auth = {"auth": {"api_key": self.api_key, "api_secret": self.api_secret}}
+        self.headers = {
+            "User-Agent": "Kraken-Python-Client/0.2.0 (Python/3.x; +https://github.com/krakenio/kraken-python)",
+            "Content-Type": "application/json",
         }
 
-    def url(self, image_url=None, params=None):
-        if image_url is None:
-            raise StandardError('Please provide a valid image URL for optimization')
+    def url(self, image_url, params):
+        """Optimize an image from a URL."""
+        if not image_url:
+            raise ValueError("Please provide a valid image URL for optimization")
+        if not params:
+            raise ValueError("Please provide image optimization parameters")
 
-        if params is None:
-            raise StandardError('Please provide image optimization parameters')
+        api_endpoint = self.api_v1_url + "url"
+        request_data = params.copy()
+        request_data["url"] = image_url
+        request_data.update(self.auth)
 
-        api_endpoint = self.api_base_url + 'url'
+        response = requests.post(api_endpoint, headers=self.headers, data=json.dumps(request_data))
+        return self._handle_response(response)
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36',
-            'content-type': 'application/json'
-        }
+    def upload(self, file_path, params):
+        """Upload and optimize a local image file."""
+        if not file_path:
+            raise ValueError("Please provide a valid file path to the image")
+        if not params:
+            raise ValueError("Please provide image optimization parameters")
 
-        params['url'] = image_url
+        api_endpoint = self.api_v1_url + "upload"
+        request_data = params.copy()
+        request_data.update(self.auth)
 
-        params.update(self.auth)
+        with open(file_path, "rb") as file:
+            files = {"file": file}
+            response = requests.post(api_endpoint, headers={"User-Agent": self.headers["User-Agent"]}, files=files, data={"data": json.dumps(request_data)})
+        return self._handle_response(response)
 
-        r = requests.post(url=api_endpoint, headers=headers, data=json.dumps(params))
+    def upload_bytesio(self, img, params):
+        """Upload and optimize an image from a BytesIO object."""
+        if not isinstance(img, BytesIO):
+            raise ValueError("Please provide a valid BytesIO file-like object")
+        if not params:
+            raise ValueError("Please provide image optimization parameters")
 
-        if r.ok:
-            return r.json()
-        else:
-            details = None
+        api_endpoint = self.api_v1_url + "upload"
+        request_data = params.copy()
+        request_data.update(self.auth)
 
+        filename = getattr(img, "name", "image.jpg")
+        files = {"file": (filename, img)}
+
+        response = requests.post(api_endpoint, headers={"User-Agent": self.headers["User-Agent"]}, files=files, data={"data": json.dumps(request_data)}, timeout=30)
+        return self._handle_response(response)
+
+    def user_status(self):
+        """Check Kraken.io user status (quota usage, plan, etc.)."""
+        api_endpoint = self.api_base_url + "user_status"
+        response = requests.post(api_endpoint, headers=self.headers, data=json.dumps(self.auth))
+        return self._handle_response(response)
+
+    def _handle_response(self, response):
+        """Handles API response and raises errors when needed."""
+        try:
+            response.raise_for_status()
+        except requests.HTTPError:
             try:
-                return r.json()
-            except Exception as e:
-                raise StandardError('Could not parse JSON response from the Kraken.io API')
+                error_json = response.json()
+                print(f"[Kraken Error] HTTP {response.status_code}: {error_json}", file=sys.stderr)
+            except ValueError:
+                print(f"[Kraken Error] HTTP {response.status_code}: {response.text}", file=sys.stderr)
+            raise
+        return response.json()
 
-    def upload(self, file_path=None, params=None):
-        if file_path is None:
-            raise StandardError('Please provide a valid file path to the image')
 
-        if params is None:
-            raise StandardError('Please provide image optimization parameters')
+# Example usage
+if __name__ == "__main__":
+    client = Client("your_api_key", "your_api_secret")
 
-        api_endpoint = self.api_base_url + 'upload'
+    # Optimize image from URL
+    params = {"wait": True, "lossy": True}
+    result = client.url("https://example.com/image.jpg", params)
+    print("Optimized URL:", result.get("kraked_url"))
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36'
-        }
+    # Optimize image from local file
+    result = client.upload("/path/to/image.jpg", params)
+    print("Optimized URL:", result.get("kraked_url"))
 
-        params.update(self.auth)
-
-        files = {
-            'file': open(file_path, 'rb')
-        }
-
-        r = requests.post(url=api_endpoint, headers=headers, files=files, data={
-            'data': json.dumps(params)
-        })
-
-        if r.ok:
-            return r.json()
-        else:
-            details = None
-
-            try:
-                return r.json()
-            except Exception as e:
-                raise StandardError('Could not parse JSON response from the Kraken.io API')
-
-    def upload_stringio(self, img=None, params=None):
-        if img is None or not isinstance(img, cStringIO):
-            raise StandardError('Please provide a valid StringIO file like object')
-        if params is None:
-            raise StandardError('Please provide image optimization parameters')
-
-        api_endpoint = self.api_base_url + 'upload'
-
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36'
-        }
-
-        params.update(self.auth)
-
-        files = {
-            'file': img.getvalue()
-        }
-
-        r = requests.post(url=api_endpoint, headers=headers, files=files, data={
-            'data': json.dumps(params)
-        })
-
-        if r.ok:
-            return r.json()
-        else:
-            details = None
-
-            try:
-                return r.json()
-            except Exception as e:
-                raise StandardError('Could not parse JSON response from the Kraken.io API')
+    # Check user status
+    user_status = client.user_status()
+    print("User status:", user_status)

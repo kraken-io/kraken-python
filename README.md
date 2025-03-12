@@ -3,6 +3,10 @@ Official Kraken.io library for Python
 
 With this Python Client you can plug into the power and speed of [Kraken.io](http://kraken.io/) Image Optimizer.
 
+## Important Notice
+
+As of version **0.2.0**, this package **only supports Python 3.8 and later**. If you are using an older Python version, please install an earlier (<=0.1.0) version of this package.
+
 * [Installation](#installation)
 * [Getting Started](#getting-started)
 * [Downloading Images](#downloading-images)
@@ -13,12 +17,15 @@ With this Python Client you can plug into the power and speed of [Kraken.io](htt
 * [Authentication](#authentication)
 * [Usage - Image URL](#usage---image-url)
 * [Usage - Image Upload](#usage---image-upload)
+* [Usage - User status](#usage---user-status)
 * [Lossy Optimization](#lossy-optimization)
 * [Image Resizing](#image-resizing)
 * [WebP Compression](#webp-compression)
-* [Amazon S3 and Rackspace Cloud Files Integration](#amazon-s3-and-rackspace-cloud-files)
-  * [Amazon S3](#amazon-s3)
-  * [Rackspace Cloud Files](#rackspace-cloud-files)
+* [PDF Compression](#pdf-compression)
+* [Amazon S3, Rackspace Cloud Files, and Google Cloud Storage](#amazon-s3-rackspace-cloud-files-and-google-cloud-storage)
+    * [Amazon S3](#amazon-s3)
+    * [Rackspace Cloud Files](#rackspace-cloud-files)
+    * [Google Cloud Storage](#google-cloud-storage)
 
 ## Installation
 
@@ -180,6 +187,37 @@ else:
     print result.get('message')
 ````
 
+## Usage - User status
+
+If you want to check your quotas or your account status, you can use `user_status()` which will return a response similar to the following:
+
+
+```json
+{
+    "success": true,
+    "active": true,
+    "plan_name": "Enterprise",
+    "quota_total": 64424509440,
+    "quota_used": 313271610,
+    "quota_remaining": 64111237830
+}
+```
+
+```python
+from krakenio import Client
+
+# Initialize Kraken client
+api = Client(api_key="your-api-key", api_secret="your-api-secret")
+
+# Get user status
+result = api.user_status()
+
+if result.get("success"):
+    print("Success:", result)
+else:
+    print("Error:", result.get("message"))
+```
+
 ## Lossy Optimization
 
 When you decide to sacrifice just a small amount of image quality (usually unnoticeable to the human eye), you will be able to save up to 90% of the initial file weight. Lossy optimization will give you outstanding results with just a fraction of image quality loss.
@@ -232,15 +270,58 @@ The `strategy` property can have one of the following values:
 
 WebP is a new image format introduced by Google in 2010 which supports both lossy and lossless compression. According to [Google](https://developers.google.com/speed/webp/), WebP lossless images are **26% smaller** in size compared to PNGs and WebP lossy images are **25-34% smaller** in size compared to JPEG images.
 
-To recompress your PNG or JPEG files into WebP format simply set `"webp": true` flag in your request JSON. You can also optionally set `"lossy": true` flag to leverage WebP's lossy compression:
+WebP's lossy compression:WebP compression no longer requires setting `'webp': True` . Instead, you should make a standard optimization request, and Kraken.io will handle WebP conversion based on your configured settings.
 
 ````python
 data = {
     'wait': True,
     'lossy': True,
-    'webp': True
+    'convert': {
+        'format': 'webp'
+    }
 }
 ````
+
+### Optimize WebP Image
+
+```python
+data = {
+    'wait': True,
+    'lossy': True
+}
+```
+
+## PDF Compression
+
+Kraken.io now supports PDF compression, allowing you to optimize PDF files with minimal loss of quality.
+
+Kraken API automatically determines the optimal compression settings based on the content type of the PDF (e.g., image-heavy, text-heavy, or mixed content). Additionally, users can optionally provide custom parameters to further control the compression process.
+
+```python
+data = {
+    'wait': True
+}
+```
+
+**Optional Parameters:**
+
+[API Docs for PDF Compression](https://kraken.io/docs/pdf-compression)
+
+-   `level` - Optimization level for the PDF. Available options are `screen`, `ebook`, `printer` and `prepress`. **Overrides DPI values**.
+-   `quality` - JPEG quality for embedded images. Acceptable values: **1-100**. Higher values preserve more detail but increase file size. Default is **65**.
+-   `dpi` - Resolution for images within the PDF. Default value is calculated based on the PDF type. Adjust this value based on your desired output quality.
+-   `downsampleType` - Method used to downsample images. Available options are `bicubic`, `average` and `subsample`
+
+
+```python
+data = {
+    'wait': True,
+    'level': 'ebook',
+    'quality': 60,
+    'dpi': 150,
+    'downsampleType': 'bicubic'
+}
+```
 
 ## External Storage
 
@@ -339,9 +420,85 @@ If your container is not CDN-enabled `kraked_url` will point to the optimized im
 kraked_url: "http://dl.kraken.io/ec/df/a5/c55d5668b1b5fe9e420554c4ee/file.jpg"
 ````
 
+### Google Cloud Storage
+
+Kraken.io API allows you to store optimized images directly in your Google Cloud Storage (GCS) bucket. Follow the steps below to configure your GCS integration and securely store your optimized images.
+
+#### Prerequisites:
+
+Ensure you have access to Google Cloud Platform (GCP) and an active project where you will store your images.
+
+#### Mandatory Parameters:
+
+- `gcs_store.bucket` - Name of the destination bucket on your Google Cloud Storage account.
+- `gcs_store.credentials` - Your service account credentials (JSON format) to authenticate with GCS.
+
+#### Optional Parameters:
+
+- `gcs_store.path` - Destination path in your GCS bucket (e.g., "images/layout/header.jpg"). Defaults to root `/`.
+- `gcs_store.acl` - Permissions of the destination object. This can be "publicRead" or "private". Defaults to "private".
+- `gcs_store.metadata` - Metadata you would like to assign to your GCS object (optimized image).
+
+#### Important:
+
+Make sure your Google Cloud Storage bucket has the appropriate permissions set to allow Kraken.io API to store images.
+
+#### Step 1: Creating a Google Cloud Storage Bucket
+
+1. Log in to your Google Cloud Console.
+2. Navigate to the "Storage" section and select "Browser."
+3. Click "Create bucket" and follow the prompts.
+4. Note the bucket name for later use.
+
+#### Step 2: Obtaining GCS Credentials
+
+To interact with GCS through the API, you need appropriate credentials as a service account key:
+
+1. Go to "IAM & Admin" in Google Cloud Console.
+2. Select "Service Accounts" and click "Create Service Account."
+3. Enter a name and description for the service account.
+4. Assign necessary roles like "Storage Object Admin" or "Storage Object Creator."
+5. Click "Create Key" and choose JSON type. This will download a JSON file with your credentials.
+6. Securely store this JSON file. It contains sensitive information that allows access to your GCS resources.
+
+#### Step 3: Configuring Your Kraken.io API Request
+
+Include the necessary details in your Kraken.io API request to store the optimized image directly in your GCS bucket. Insert the JSON file's contents into the `credentials` property inside `gcs_store`.
+
+```python
+import json
+import requests
+
+from krakenio import Client
+
+api = Client("your_api_key", "your_api_secret")
+
+with open("path/to/your/credentials.json", "r") as f:
+    credentials = json.load(f)
+
+params = {
+    "wait": True,
+    "lossy": True,
+    "gcs_store": {
+        "acl": "private",
+        "bucket": "your-bucket-name",
+        "path": "path/to/your/image.png",
+        "credentials": credentials
+    }
+}
+
+result = api.url("https://example.com/image.png", params)
+
+if result.get("success"):
+    print(f"Success. Optimized image URL: {result.get('kraked_url')}")
+else:
+    print(f"Fail. Error message: {result.get('message')}")
+
+```
+
 ## LICENSE - MIT
 
-Copyright (c) 2013 Nekkra UG
+Copyright (c) 2025 Nekkra UG
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
