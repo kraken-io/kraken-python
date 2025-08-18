@@ -261,8 +261,8 @@ else:
 The `strategy` property can have one of the following values:
 
 - `exact` - Resize by exact width/height. No aspect ratio will be maintained.
-- `portrait` - Exact width will be set, height will be adjusted according to aspect ratio.
-- `landscape` - Exact height will be set, width will be adjusted according to aspect ratio.
+- `portrait` - Exact height will be set, width will be adjusted according to aspect ratio.
+- `landscape` - Exact width will be set, height will be adjusted according to aspect ratio.
 - `auto` - The best strategy (portrait or landscape) will be selected for a given image according to aspect ratio.
 - `crop` - This option will crop your image to the exact size you specify with no distortion.
 
